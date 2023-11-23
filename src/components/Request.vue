@@ -1,15 +1,21 @@
 <template>
     <div>
-        <!-- 在这里显示从后端获取的数据 -->
-        <div v-if="responseData">{{ responseData }}</div>
+        <div class="chat-container" v-if="responseData">
+            <div v-for="message in responseData.data" :key="message.id" class="message">
+                <div :class="{ 'message-right': message.username === username, 'message-left': message.username !== username }">
+                    <span class="username">{{ message.username }}:</span>
+                    <span class="content">{{ message.content }}</span>
+                    <span class="create-time">{{ formatTime(message.createTime) }}</span>
+                </div>
+            </div>
+        </div>
 
-        <!-- 如果有错误，显示错误信息 -->
-        <div v-if="error">{{ error }}</div>
+        <div v-if="error" class="error">{{ error }}</div>
     </div>
 </template>
 
+
 <script>
-// 导入axios
 import axios from 'axios';
 
 export default {
@@ -17,25 +23,67 @@ export default {
         return {
             responseData: null,
             error: null,
+            screen: "room1",
+            username: "apifox"
         };
     },
     mounted() {
-        // 在组件加载完成后发送GET请求
         this.fetchData();
     },
     methods: {
         fetchData() {
-            // 向后端发送GET请求
-            axios.get('http://127.0.0.1:8848/chat/{room1}')
+            axios.get(`http://127.0.0.1:8848/chat/${this.screen}/${this.username}`)
+
                 .then(response => {
-                    // 请求成功时更新responseData
                     this.responseData = response.data;
                 })
                 .catch(error => {
-                    // 请求失败时更新error
                     this.error = '发生错误: ' + error.message;
                 });
+        },
+        formatTime(time) {
+            // 根据实际需要格式化时间，这里简单展示
+            return new Date(time).toLocaleTimeString();
         },
     },
 };
 </script>
+
+<style scoped>
+
+.chat-container {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+.message-right {
+    text-align: right;
+}
+
+.message-left {
+    text-align: left;
+}
+
+.username {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.create-time {
+    color: #888;
+    font-size: 12px;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+</style>
