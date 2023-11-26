@@ -45,6 +45,7 @@ export default {
         fetchData() {
             axios.get(`http://127.0.0.1:8848/chat/${this.screen}/${this.username}`)
                 .then(response => {
+                    console.log(response.data)
                     this.responseData = response.data;
                 })
                 .catch(error => {
@@ -64,9 +65,8 @@ export default {
 
             this.ws.onmessage = event => {
                 console.log('收到消息:', event.data);
-                //const newMessage = JSON.parse(event.data);
-                //this.responseData.data.push(newMessage);
-                this.responseData.data().push(event.data);
+                this.responseData.data.push(event.data);
+                console.log(event.data)
             };
 
             this.ws.onclose = () => {
